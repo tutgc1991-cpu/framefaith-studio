@@ -1,0 +1,14 @@
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { Link } from '@tanstack/react-router';
+import { ArrowUpRight, LayoutGrid, BriefcaseBusiness, BadgeCheck, Sprout, UserRound, Building2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Toaster } from '@/components/ui/sonner';
+import { initialState, restoreState, type DemoState } from '@/lib/localsprint';
+const DemoContext = createContext<{state:DemoState; setState:React.Dispatch<React.SetStateAction<DemoState>>}|null>(null);
+export function useDemo(){const context=useContext(DemoContext);if(!context)throw new Error('Demo provider missing');return context;}
+export function AppShell({children}:{children:ReactNode}) {
+ const [state,setState]=useState(initialState); const [ready,setReady]=useState(false);
+ useEffect(()=>{try {const raw=localStorage.getItem('localsprint-demo-v1');if(raw){const stored=restoreState(JSON.parse(raw));if(stored)setState(stored);}}catch{/* Use fresh demo state if browser storage is unavailable. */}setReady(true);},[]);
+ useEffect(()=>{if(ready)try{localStorage.setItem('localsprint-demo-v1',JSON.stringify(state));}catch{/* In-memory demos remain available. */}},[state,ready]);
+ return <DemoContext.Provider value={{state,setState}}><header className="app-header"><div className="header-inner"><Link to="/" className="brand"><div className="brand-mark"><Sprout size={24}/></div><div><div className="brand-name">LocalSprint<span className="text-success">.</span></div><div className="brand-sub">FELLOWSHIPS</div></div></Link><nav className="main-nav" aria-label="Main navigation"><Link to="/" activeOptions={{exact:true}} className="nav-link" activeProps={{className:'nav-link active'}}><LayoutGrid size={14}/>Overview</Link><Link to="/sprints" className="nav-link" activeProps={{className:'nav-link active'}}><BriefcaseBusiness size={14}/>Sprint Board</Link><Link to="/workspace" className="nav-link" activeProps={{className:'nav-link active'}}><ArrowUpRight size={14}/>My Workspace</Link><Link to="/record" className="nav-link" activeProps={{className:'nav-link active'}}><BadgeCheck size={14}/>Verified Record</Link></nav><div className="role-switch" aria-label="Presenter role"><Button variant="ghost" className={state.role==='learner'?'selected':''} aria-pressed={state.role==='learner'} onClick={()=>setState(s=>({...s,role:'learner'}))}><UserRound size={12}/>Learner View</Button><Button variant="ghost" className={state.role==='partner'?'selected':''} aria-pressed={state.role==='partner'} onClick={()=>setState(s=>({...s,role:'partner'}))}><Building2 size={12}/>Hiring Partner</Button></div><div className="avatar" title={state.role==='learner'?'Amina Odhiambo — Junior Full-Stack Dev':'SavannaPay Tech / CivicHub'}>{state.role==='learner'?'AO':'SP'}</div></div></header>{children}<Toaster position="bottom-right" richColors/></DemoContext.Provider>;
+}

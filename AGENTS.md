@@ -28,3 +28,9 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Application architecture
+- Use a shared React context mounted in the root shell with hydration-safe localStorage persistence for the frontend demo; this keeps role and workflow state consistent between content routes.
+- Keep mock data and state transitions in a browser-safe domain module and verify user-facing workflow rules with unit tests; this makes the hackathon demo predictable.
+- Use individual TanStack content routes for overview, sprint board, workspace, and experience records; this preserves navigation and shareable record URLs.
+- Demo credentials are simulated portfolio records, not cryptographically trusted credentials; label their verification limits explicitly.
